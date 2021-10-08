@@ -1,0 +1,56 @@
+#Name: Lauren Done
+#Group: Jennifer Lavayen, Joaquin Sanchez, Hugo Pinto, Collin Raffer
+
+#Homework 4
+
+attach(acs2017_ny)
+
+#create subgroup: We chose to draw observations from women above the age of 50 in the labor force with bachelor's degrees in buesiness. We also wanted to restrict our subset to with race by only including White and Hispanic women but this returned no observations in the subset when I included these variables; so I chose to remove them.
+
+testvariables <- (AGE >= 50) & (AGE <= 65) & (LABFORCE == 2) & (DEGFIELD == "Business") & (WKSWORK2 > 4) & (UHRSWORK >= 35) & (female == 1)
+testsubset <- subset(acs2017_ny,testvariables)
+
+detach()
+attach(testsubset)
+
+#check data for obvious errors...
+
+summary(testsubset)
+plot(testsubset)
+
+require(stargazer)
+stargazer(testsubset, type = "text")
+
+require(AER)
+
+#subset in order to plot:
+
+NNobs <- length(INCWAGE)
+set.seed(12345)
+graph_obs <- (runif(NNobs) < 0.1)
+dat_graph <-subset(testsubset,graph_obs)
+
+
+Predict_1 <- plot(INCWAGE ~ jitter(AGE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,150000), data = dat_graph)
+
+#Observation: Wages are skewed - which age it is difficult 
+
+Predict_2 <- plot(INCWAGE ~ jitter(RACE, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,150000), data = dat_graph)
+
+#Observation: With race as the Y variable, it appears that most of the income earners in this category self reported as White, with an observed variation of income levels within the ethnic group.
+
+Predict_3 <- plot(INCWAGE ~ jitter(HISPAN, factor = 2), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,150000), data = dat_graph)
+
+#Observation: Among the Hispanic population in this demographic of older working women most did not identify as Hispanic; out of the women who did self identify as Hispanic, it seems that most identified as Mexican and had wages that averaged an income between 50k and 100k.
+
+lm(log1p(INCWAGE) ~ jitter(RACE, factor = 3), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,150000), data = dat_graph)
+plot(lm(log1p(INCWAGE) ~ jitter(RACE, factor = 3), pch = 16, col = rgb(0.5, 0.5, 0.5, alpha = 0.2), ylim = c(0,150000), data = dat_graph)
+)
+
+#Observation: the line to close to zero to; making it difficult for me to determine if there is a meaningful relationship between race and income with this dataset.
+
+
+to_be_predicted2 <- data.frame(AGE = 50:65, female = 1, AfAm = 1, Asian = 0, Amindian = 0, race_oth = 0, Hispanic = 1, DEGFIELD="Business")
+testsubset <- data.frame(testsubset)
+to_be_predicted2$yhat <- predict(testsubset) (newdata = to_be_predicted2)
+lines(yhat ~ AGE, data = to_be_predicted2)
