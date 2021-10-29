@@ -1,0 +1,61 @@
+---
+title: "Lab 5 Homework Ver. 2"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+name: Lauren Done
+partners: Jennifer Laveryn, Joaquin Sanchez & Hugo
+---
+
+```
+attach(acs2017_ny)
+use_varb <- (AGE >= 20) & (AGE <= 60) & (LABFORCE == 2) & (WKSWORK2 >4) & (UHRSWORK >= 40) & (AfAm ==1) & (female == 1) & (educ_college == 1)
+dat_use <- subset(acs2017_ny, use_varb)
+detach()
+attach(dat_use)
+
+require(stargazer)
+```
+#Onto first regression analysis...
+
+```
+lm1 <- lm(INCWAGE ~ AGE + I(AGE^2) + I(AGE^3) + I(AGE^4) + AfAm + female + educ_college)
+summary(lm1)
+stargazer(lm1, type = "text", title = "LM1: Regression Results")
+```
+
+#Wage increases with age, until people become older and wage begind to decrease with age... Age^3 has an interesting positvie result indicating that in some ways wealth increases even in older age.
+
+#Race or college education seem to have an negligible effect on this.,,
+
+#skipped lm2... sorry
+
+```
+lm3 <- lm(INCWAGE ~ AGE + I(AGE^2) + I(female*AGE) + I(female*(AGE^2)))
+summary(lm3)
+stargazer(lm3, type = "text", title = "LM3: Regression Results")
+```
+
+#Female*AGE, gave no output... Neither did Female*AGE^2 -- I think this is the case because all of the individuals observed in the data set were female.
+
+```
+lm4 <- lm(INCWAGE ~ I(female*AGE) + I(female*(AGE^2)) + (has_PvtHealthIns==1) + (AGE^3) + (AGE^4))
+summary(lm4)
+stargazer(lm4, type = "text", title = "LM4: Regression Results")
+
+```
+
+#Having private health insurance had a positive relationship with wage, this makes sense as people who often work have health insurance..
+
+```
+lm5 <- lm(INCWAGE ~  I(AfAm*AGE) + I(AfAm*(AGE^2)) + CITIZEN == "3")
+summary(lm5)
+stargazer(lm5, type = "text", title = "LM5: Regression Results")
+```
+
+#Here I tried to see if the citizen status had  a significant effect on female wages, and if so how much... After create a regression for it I noticed that the coeficient was blank.
+#This prompted me to further inspect the data where I realized that out of the 669 observations only 46 reported themselves as not being a citizen, I do not believe this was enough data to create a meanigful observation in this case.
+```
+table(dat_use$CITIZEN)
+```
